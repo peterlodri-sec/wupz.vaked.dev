@@ -48,4 +48,24 @@ Cloudflare Pages, static: root directory = this repo, no build command, output
 dir = `/`. Custom domain `wupz.vaked.dev` (dashboard). Headers/host rules come
 from `_headers` + `robots.txt`.
 
+```bash
+export CLOUDFLARE_ACCOUNT_ID=5b8d7905dd79e25025bcc0c8f33d5940
+wrangler pages project create wupz-vaked-dev --production-branch main
+wrangler pages deploy . --project-name wupz-vaked-dev --branch main --commit-dirty=true
+```
+
+**Status (2026-10-10):** project `wupz-vaked-dev` created and deployed;
+**live at <https://wupz-vaked-dev.pages.dev>**. The custom domain
+`wupz.vaked.dev` is attached to the project but **pending** — the `vaked.dev`
+zone still needs the record:
+
+```
+CNAME  wupz  →  wupz-vaked-dev.pages.dev   (proxied)
+```
+
+The wrangler OAuth token has Pages scope but **not DNS:edit**, so the record
+must be added in the Cloudflare dashboard (Pages → the project → Custom domains
+offers to create it), or with a DNS-scoped API token. Until then the apex host
+404s — the `.pages.dev` name works.
+
 *0 + 1 · {−1, 0, +1} · fine touch from within · vaked.dev*
