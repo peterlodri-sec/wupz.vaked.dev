@@ -14,6 +14,7 @@
     t: 0,
     mode: "ultra", // "ultra" (Goku UI / silver) | "zeno" (Zeno / violet-gold)
     intensity: 1,
+    bg: null, // cached background gradient (rebuilt on resize / mode change)
     particles: [],
     pulses: [],
     pointer: { x: 0.5, y: 0.5, px: 0.5, py: 0.5, down: false, active: false },
@@ -40,6 +41,7 @@
 
     const target = Math.min(900, Math.round((state.w * state.h) / 2600));
     const n = Math.max(120, target);
+    state.bg = null; // the cached gradient is sized to the viewport
     state.particles = new Array(n);
     for (let i = 0; i < n; i++) {
       state.particles[i] = {
@@ -55,7 +57,7 @@
 
   // A cheap, deterministic flow field — sums of sines, no noise library.
   function flowAngle(x, y, t) {
-    const s = 0.0016 + state.pointer.active ? 0.0016 : 0.0016;
+    const s = 0.0016;
     return (
       Math.sin(x * s * state.intensity + t * 0.6) * 1.4 +
       Math.cos(y * s * 1.3 - t * 0.45) * 1.2 +
@@ -109,6 +111,7 @@
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, state.w, state.h);
+    state.bg = g;
   }
 
   // the Ghost-in-the-Shell horizon: a perspective grid converging on the pointer.
@@ -275,6 +278,7 @@
       if (el) {
         el.addEventListener("click", () => {
           state.mode = id;
+          state.bg = null; // repaint the base wash in the new palette
           document.body.dataset.mode = id;
           for (const other of ["ultra", "zeno"]) {
             const o = document.getElementById("mode-" + other);
@@ -318,12 +322,14 @@
     last = now;
     state.t += dt;
 
-    // trail fade
+    // trail fade — reuse the cached background gradient so the base wash
+    // survives instead of decaying to flat black.
     ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = state.mode === "zeno" ? "rgba(11,7,20,0.16)" : "rgba(3,8,17,0.16)";
+    if (!state.bg) drawBackground();
+    ctx.globalAlpha = 0.16;
+    ctx.fillStyle = state.bg;
     ctx.fillRect(0, 0, state.w, state.h);
-
-    if (state.t < 0.02) drawBackground();
+    ctx.globalAlpha = 1;
 
     step(dt);
     drawHorizon();
