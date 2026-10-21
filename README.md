@@ -39,8 +39,9 @@ dependencies, no fetched data.
 
 Three axes (valence · arousal · dominance) quantized to trits at |x| ≥ 0.33,
 packed four to a byte, printed as `qt:<hex>`. A value nearer zero reads as a real
-**don't know** — the same codec as `qwave/core/src/quanttern.rs` and
-`qultrakotoro`'s `QuantTern.swift`.
+**don't know** — the same codec as `qwave/core/src/quanttern.rs`,
+`qultrakotoro`'s `QuantTern.swift`, and [`8b-is/alexiai`](https://github.com/8b-is/alexiai)'s
+pure-integer `p/q` `gaia_mlx_quant::wupz` (`quant_tern_encode_vad_pq` / `fold_to_quant_tern_pq`).
 
 ## deploy
 
